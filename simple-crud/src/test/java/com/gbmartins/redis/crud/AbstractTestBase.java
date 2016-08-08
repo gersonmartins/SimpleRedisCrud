@@ -27,6 +27,8 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import com.gbmartins.redis.crud.ContextTestConfiguration;
+import com.gbmartins.redis.crud.SystemPropertyActiveProfileResolver;
 import com.gbmartins.redis.crud.config.RedisApplicationConfiguration;
 
 /**
