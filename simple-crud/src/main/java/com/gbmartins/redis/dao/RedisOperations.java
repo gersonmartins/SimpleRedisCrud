@@ -1,3 +1,22 @@
+/*
+ * The MIT License (MIT)
+ * Copyright © 2015-2016 Gerson B. Martins (gbmartins.com)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+ * and associated documentation files (the “Software”), to deal in the Software without 
+ * restriction, including without limitation the rights to use, copy, modify, merge, publish, 
+ * distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the 
+ * Software is furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or 
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package com.gbmartins.redis.dao;
 
 import java.io.ByteArrayInputStream;
@@ -46,27 +65,28 @@ public class RedisOperations {
 		this.redisFactory = redisFactory;
 	}
 
+
 	/**
-	 * Save object.
+	 * Save or update object.
 	 *
-	 * @param <T>
-	 *            the generic type
-	 * @param key
-	 *            the key
-	 * @param object
-	 *            the object
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @param <T> the generic type
+	 * @param key the key
+	 * @param object the object
+	 * @return the string
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public <T extends Serializable> void saveObject(String key, T object) throws IOException {
+	public <T extends Serializable> String saveOrUpdateObject(String key, T object) throws IOException {
 
 		try {
 
 			byte[] bytes = serializeObject(object);
+			String result = null;
 
 			try (Jedis jedis = redisFactory.getResource()) {
-				jedis.set(key.getBytes(), bytes);
+				result = jedis.set(key.getBytes(), bytes);
 			}
+			
+			return result;
 
 		} catch (IOException ex) {
 			LOG.error("I/O Error when trying to save object", ex);
@@ -77,6 +97,7 @@ public class RedisOperations {
 		}
 
 	}
+		
 
 	/**
 	 * Gets the object.
@@ -116,16 +137,13 @@ public class RedisOperations {
 	}
 
 	/**
-	 * Save bulk object.
+	 * Save or update bulk object.
 	 *
-	 * @param <T>
-	 *            the generic type
-	 * @param bulk
-	 *            the bulk
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @param <T> the generic type
+	 * @param bulk the bulk
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public <T extends Serializable> void saveBulkObject(Map<String, T> bulk) throws IOException {
+	public <T extends Serializable> void saveOrUpdateBulkObject(Map<String, T> bulk) throws IOException {
 
 		if (bulk == null) {
 			throw new RuntimeException("bulk cannot be null or empty");
@@ -159,14 +177,11 @@ public class RedisOperations {
 	/**
 	 * Gets the list object.
 	 *
-	 * @param <T>
-	 *            the generic type
-	 * @param keys
-	 *            the keys
-	 * @param type
-	 *            the type
+	 * @param <T>            the generic type
+	 * @param keys            the keys
+	 * @param type            the type
 	 * @return the list object
-	 * @throws Exception
+	 * @throws Exception the exception
 	 */
 	public <T extends Serializable> List<T> getListObject(List<String> keys, Class<T> type) throws Exception {
 		if (keys == null || keys.isEmpty()) {

@@ -19,12 +19,18 @@
  */
 package com.gbmartins.redis.crud;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+
+import com.gbmartins.redis.service.UserService;
 
 /**
  * The Class Application.
  */
 public class Application implements CommandLineRunner{
+	
+	@Autowired
+	private UserService service;
 
 	/* (non-Javadoc)
 	 * @see org.springframework.boot.CommandLineRunner#run(java.lang.String[])

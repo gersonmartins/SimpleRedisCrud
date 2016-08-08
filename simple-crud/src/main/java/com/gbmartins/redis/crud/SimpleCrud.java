@@ -23,26 +23,28 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 
 import com.gbmartins.redis.crud.config.ApplicationConfiguration;
+import com.gbmartins.redis.crud.config.RedisApplicationConfiguration;
 import com.google.common.collect.Sets;
 
 /**
  * The Class SimpleCrud.
  */
 public class SimpleCrud {
-	
+
 	/**
 	 * The main method.
 	 *
-	 * @param args the arguments
+	 * @param args
+	 *            the arguments
 	 */
 	public static void main(String[] args) {
-		
+
 		SpringApplication app = new SpringApplication(Application.class);
 		app.setBannerMode(Banner.Mode.CONSOLE);
-		app.setSources(Sets.newHashSet(ApplicationConfiguration.class));
+		app.setSources(Sets.newHashSet(ApplicationConfiguration.class, RedisApplicationConfiguration.class));
 		app.setWebEnvironment(false);
 		app.run(args);
-		
+
 	}
 
 }

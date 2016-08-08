@@ -1,4 +1,4 @@
 redis:
-  hostname: 52.207.218.109
+  hostname: 52.23.153.176
   port: 6378
   password: redis456

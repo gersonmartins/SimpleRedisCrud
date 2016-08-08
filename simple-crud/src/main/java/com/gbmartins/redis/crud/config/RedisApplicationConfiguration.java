@@ -23,12 +23,13 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import com.gbmartins.redis.dao.RedisPoolConnection;
+import com.gbmartins.redis.service.UserService;
 
 /**
  * The Class RedisApplicationConfiguration.
  */
 @Configuration
-@ComponentScan(basePackageClasses = RedisPoolConnection.class)
+@ComponentScan(basePackageClasses = { RedisPoolConnection.class, UserService.class })
 public class RedisApplicationConfiguration {
 
 }

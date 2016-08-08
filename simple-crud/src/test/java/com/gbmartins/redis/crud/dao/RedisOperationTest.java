@@ -32,7 +32,7 @@ public class RedisOperationTest extends AbstractTestBase {
 		SimpleBean bean = new SimpleBean(1, "name");
 		String key = "key1";
 
-		operations.saveObject(key, bean);
+		operations.saveOrUpdateObject(key, bean);
 
 		SimpleBean newBean = operations.getObject(key, SimpleBean.class);
 
@@ -46,7 +46,7 @@ public class RedisOperationTest extends AbstractTestBase {
 		SimpleBean bean = new SimpleBean(1, "name");
 		String key = "key2";
 
-		operations.saveObject(key, bean);
+		operations.saveOrUpdateObject(key, bean);
 
 		operations.getObject(key, String.class);
 
@@ -60,7 +60,7 @@ public class RedisOperationTest extends AbstractTestBase {
 			map.put("key" + i, new SimpleBean(i, "name" + i));
 		}
 
-		operations.saveBulkObject(map);
+		operations.saveOrUpdateBulkObject(map);
 
 		Iterator<Entry<String, SimpleBean>> it = map.entrySet().iterator();
 		while (it.hasNext()) {
