@@ -21,15 +21,21 @@ package com.gbmartins.redis.crud;
 
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import com.gbmartins.redis.crud.config.RedisApplicationConfiguration;
 
 /**
  * The Class AbstractTestBase.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles(profiles = { "test", "ci" }, resolver = SystemPropertyActiveProfileResolver.class)
+@ActiveProfiles(profiles = { "test", "ci", "default" }, resolver = SystemPropertyActiveProfileResolver.class)
+@ContextHierarchy({ @ContextConfiguration(classes = ContextTestConfiguration.class),
+		@ContextConfiguration(classes = RedisApplicationConfiguration.class) })
 @TestExecutionListeners(listeners = { DependencyInjectionTestExecutionListener.class })
 public abstract class AbstractTestBase {
 

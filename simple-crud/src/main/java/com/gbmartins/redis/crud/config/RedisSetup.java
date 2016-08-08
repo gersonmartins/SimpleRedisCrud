@@ -19,8 +19,14 @@
  */
 package com.gbmartins.redis.crud.config;
 
+import javax.annotation.PostConstruct;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import com.google.common.base.Strings;
 
 /**
  * The Class RedisSetup.
@@ -29,12 +35,14 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("redis")
 public class RedisSetup {
 
+	private static final Logger LOG = LogManager.getLogger(RedisSetup.class);
+
 	/** The hostname. */
 	private String hostname;
-	
+
 	/** The port. */
 	private Integer port;
-	
+
 	/** The password. */
 	private String password;
 
@@ -50,7 +58,8 @@ public class RedisSetup {
 	/**
 	 * Sets the hostname.
 	 *
-	 * @param hostname the new hostname
+	 * @param hostname
+	 *            the new hostname
 	 */
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
@@ -68,7 +77,8 @@ public class RedisSetup {
 	/**
 	 * Sets the port.
 	 *
-	 * @param port the new port
+	 * @param port
+	 *            the new port
 	 */
 	public void setPort(Integer port) {
 		this.port = port;
@@ -86,10 +96,23 @@ public class RedisSetup {
 	/**
 	 * Sets the password.
 	 *
-	 * @param password the new password
+	 * @param password
+	 *            the new password
 	 */
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	@PostConstruct
+	public void init() {
+		printProperties();
+	}
+
+	private void printProperties() {
+
+		LOG.info("Property - Redis hostname        : " + getHostname());
+		LOG.info("Property - Redis port            : " + getPort());
+		LOG.info("Property - Redis pass            : " + (Strings.isNullOrEmpty(getPassword()) ? "<empty>" : "*****"));
 	}
 
 }
