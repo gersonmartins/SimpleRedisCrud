@@ -121,6 +121,10 @@ public class RedisOperations {
 			try (Jedis jedis = redisFactory.getResource()) {
 				bytes = jedis.get(key.getBytes());
 			}
+			
+			if (bytes == null) {
+				return null;
+			}
 
 			return deserializeObject(bytes, type);
 		} catch (IOException | ClassNotFoundException cne) {
@@ -233,6 +237,7 @@ public class RedisOperations {
 		}
 		return numberDeleted;
 	}
+	
 
 	/**
 	 * Script load.

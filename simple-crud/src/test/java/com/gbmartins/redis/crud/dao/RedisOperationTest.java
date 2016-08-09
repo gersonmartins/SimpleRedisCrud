@@ -2,6 +2,7 @@ package com.gbmartins.redis.crud.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
@@ -15,17 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.gbmartins.redis.crud.AbstractTestBase;
 import com.gbmartins.redis.dao.RedisOperations;
-import com.gbmartins.redis.dao.RedisPoolConnection;
-
-import redis.clients.jedis.Jedis;
 
 public class RedisOperationTest extends AbstractTestBase {
 
 	@Autowired
 	private RedisOperations operations;
-
-	@Autowired
-	private RedisPoolConnection poolConnection;
 
 	@Test
 	public void testSaveObjectOperation() throws Exception {
@@ -74,24 +69,17 @@ public class RedisOperationTest extends AbstractTestBase {
 			assertEquals(bean.getName(), newBean.getName());
 		}
 	}
-
+	
 	@Test
-	public void testScriptLoadOperation() {
-		String msg = "hello world";
-		String script = String.format("return '%s'", msg);
-
-		String shaScript = operations.scriptLoad(script);
-
-		assertNotNull(shaScript);
-		String response = null;
-		try (Jedis jedis = poolConnection.getResource()) {
-			response = (String) jedis.evalsha(shaScript);
-		}
-
-		assertNotNull(response);
-		assertEquals(msg, response);
+	public void testGetNotFoundKey() throws Exception {
+		SimpleBean bean = null;
+		
+		bean = operations.getObject("anyKey", SimpleBean.class);
+		
+		assertNull(bean);
 	}
 
+	
 	private static class SimpleBean implements Serializable {
 		private static final long serialVersionUID = -5023841794057529771L;
 		private int id;

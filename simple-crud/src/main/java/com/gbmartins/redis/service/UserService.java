@@ -49,7 +49,8 @@ public class UserService {
 	/**
 	 * Instantiates a new user service.
 	 *
-	 * @param operations the operations
+	 * @param operations
+	 *            the operations
 	 */
 	@Autowired
 	public UserService(RedisOperations operations) {
@@ -60,7 +61,8 @@ public class UserService {
 	/**
 	 * Save or update user.
 	 *
-	 * @param user the user
+	 * @param user
+	 *            the user
 	 * @return the string
 	 */
 	public String saveOrUpdateUser(User user) {
@@ -71,11 +73,51 @@ public class UserService {
 			throw new RuntimeException(e);
 		}
 	}
+	
+
+	/**
+	 * Save user.
+	 *
+	 * @param user the user
+	 * @return the string
+	 */
+	public String saveUser(User user) {
+		try {
+			if (operations.getObject(user.getEmail(), User.class) == null) {
+				return operations.saveOrUpdateObject(user.getEmail(), user);
+			}
+			return null;
+		} catch (Exception e) {
+			LOG.error("Update User error");
+			throw new RuntimeException(e);
+		}
+	}
+
+
+	/**
+	 * Update an existent user.
+	 *
+	 * @param user
+	 *            the user
+	 * @return the string
+	 */
+	public String updateUser(User user) {
+		try {
+			if (operations.getObject(user.getEmail(), User.class) != null) {
+				return operations.saveOrUpdateObject(user.getEmail(), user);
+			}
+			return null;
+		} catch (Exception e) {
+			LOG.error("Update User error");
+			throw new RuntimeException(e);
+		}
+	}
 
 	/**
 	 * Save or update users.
 	 *
-	 * @param users the users
+	 * @param users
+	 *            the users
 	 * @return the list
 	 */
 	public List<User> saveOrUpdateUsers(User... users) {
@@ -92,7 +134,7 @@ public class UserService {
 				}
 				operations.saveOrUpdateBulkObject(map);
 
-			} catch (IOException e) {
+			} catch (Exception e) {
 				LOG.error("Save Users error");
 				throw new RuntimeException(e);
 			}
@@ -107,25 +149,40 @@ public class UserService {
 	/**
 	 * Delete user.
 	 *
-	 * @param email the email
+	 * @param email
+	 *            the email
+	 * @return the long
 	 */
-	public void deleteUser(String email) {
-		operations.deleteKeys((String[]) Lists.newArrayList(email).toArray());
+	public long deleteUser(String email) {
+		try {
+			return operations.deleteKeys(email);
+		} catch (Exception e) {
+			LOG.error("Delete User error");
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * Delete users.
 	 *
-	 * @param emails the emails
+	 * @param emails
+	 *            the emails
+	 * @return the long
 	 */
-	public void deleteUsers(String... emails) {
-		operations.deleteKeys(emails);
+	public long deleteUsers(String... emails) {
+		try {
+			return operations.deleteKeys(emails);
+		} catch (Exception e) {
+			LOG.error("Delete Users error");
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * Gets the user by email.
 	 *
-	 * @param email the email
+	 * @param email
+	 *            the email
 	 * @return the user by email
 	 */
 	public User getUserByEmail(String email) {
@@ -140,7 +197,8 @@ public class UserService {
 	/**
 	 * Gets the users by emails.
 	 *
-	 * @param emails the emails
+	 * @param emails
+	 *            the emails
 	 * @return the users by emails
 	 */
 	public List<User> getUsersByEmails(String... emails) {
