@@ -15,3 +15,5 @@ This code is part of my blog [GBMartins](https://gbmartins.com). Check this out 
 ## Copyright and license
 
 Code and documentation copyright 2016 Gerson B. Martins. Code released under [the MIT license](https://github.com/gersonmartins/SimpleRedisCrud/blob/master/LICENSE). 
+
+test
