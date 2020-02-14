@@ -130,17 +130,17 @@ In order to make easier our job, we will create the POM file as child from sprin
 [source,xml]
 ----
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.gbmartins.redis</groupId>
-	<artifactId>simple-crud</artifactId>
-	<version>0.1</version>
-	<name>Redis Simple Crud</name>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.gbmartins.redis</groupId>
+    <artifactId>simple-crud</artifactId>
+    <version>0.1</version>
+    <name>Redis Simple Crud</name>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.4.0.RELEASE</version>
-	</parent>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.4.0.RELEASE</version>
+    </parent>
 ----
 
 Lines within `<parent>` node show how the POM file is created as a child of the Spring Boot. Doing this, just a few others configurations are needed because the main complexity will be managed by the parent POM.
@@ -152,14 +152,14 @@ As a part of Spring boot plugin, we need to set which class is our Main class. A
 [source,xml]
 ----
 <properties>
-	<guava.version>19.0</guava.version>
-	<java.version>1.8</java.version>
-	<spring.boot.version>1.4.0.RELEASE</spring.boot.version>
+    <guava.version>19.0</guava.version>
+    <java.version>1.8</java.version>
+    <spring.boot.version>1.4.0.RELEASE</spring.boot.version>
 
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-	<start-class>com.gbmartins.redis.crud.SimpleCrud</start-class>
+    <start-class>com.gbmartins.redis.crud.SimpleCrud</start-class>
 
 </properties>
 ----
@@ -171,24 +171,24 @@ The following POM fragment shows how to configure the `spring-boot-maven-plugin`
 [source,xml]
 ----
 <build>
-	<plugins>
-		<plugin>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-maven-plugin</artifactId>
-			<configuration>
-				<mainClass>${start-class}</mainClass>
-				<layout>ZIP</layout>
-			</configuration>
-			<executions>
-				<execution>
-					<goals>
-						<goal>repackage</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-	<!-- omitted lines -->
-	</plugins>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+                <mainClass>${start-class}</mainClass>
+                <layout>ZIP</layout>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>repackage</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    <!-- omitted lines -->
+    </plugins>
 </build>
 ----
 
@@ -206,15 +206,15 @@ import com.gbmartins.redis.crud.config.RedisApplicationConfiguration;
 import com.google.common.collect.Sets;
 
 public class SimpleCrud {
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		SpringApplication app = new SpringApplication(Application.class);
-		app.setBannerMode(Banner.Mode.CONSOLE);
-		app.setSources(Sets.newHashSet(ApplicationConfiguration.class, RedisApplicationConfiguration.class));
-		app.setWebEnvironment(false);
-		app.run(args);
+        SpringApplication app = new SpringApplication(Application.class);
+        app.setBannerMode(Banner.Mode.CONSOLE);
+        app.setSources(Sets.newHashSet(ApplicationConfiguration.class, RedisApplicationConfiguration.class));
+        app.setWebEnvironment(false);
+        app.run(args);
 
-	}
+    }
 }
 ----
 
@@ -242,23 +242,23 @@ In order to read those parameters we created two classes, one for mapping the va
 @EnableConfigurationProperties(value = { RedisSetup.class })
 public class ApplicationConfiguration {
 
-	@Autowired
-	private RedisSetup redisSetup;
+    @Autowired
+    private RedisSetup redisSetup;
 
-	@Bean
-	public PropertySource<?> yamlPropertySourceLoader() throws IOException {
-		YamlPropertySourceLoader loader = new YamlPropertySourceLoader();
-		PropertySource<?> applicationYamlPropertySource = loader.load("application.yml",
-				new ClassPathResource("application.yml"), "default");
-		return applicationYamlPropertySource;
-	}
+    @Bean
+    public PropertySource<?> yamlPropertySourceLoader() throws IOException {
+        YamlPropertySourceLoader loader = new YamlPropertySourceLoader();
+        PropertySource<?> applicationYamlPropertySource = loader.load("application.yml",
+                new ClassPathResource("application.yml"), "default");
+        return applicationYamlPropertySource;
+    }
 
 
-	@Bean(name = "redisSetup")
-	public RedisInstanceSetup redisInstanceSetup() {
-		RedisInstanceSetup.createInstance(redisSetup.getHostname(), redisSetup.getPort(), redisSetup.getPassword());
-		return RedisInstanceSetup.getInstance();
-	}
+    @Bean(name = "redisSetup")
+    public RedisInstanceSetup redisInstanceSetup() {
+        RedisInstanceSetup.createInstance(redisSetup.getHostname(), redisSetup.getPort(), redisSetup.getPassword());
+        return RedisInstanceSetup.getInstance();
+    }
 
 }
 ----
@@ -271,10 +271,10 @@ In line `RedisInstanceSetup` method is created an instance of a Redis Setup. Thi
 @ConfigurationProperties("redis")
 public class RedisSetup {
 
-	private static final Logger LOG = LogManager.getLogger(RedisSetup.class);
-	private String hostname;
-	private Integer port;
-	private String password;
+    private static final Logger LOG = LogManager.getLogger(RedisSetup.class);
+    private String hostname;
+    private Integer port;
+    private String password;
 
         /* Getters and Setters were omitted */
 }
@@ -310,22 +310,22 @@ JedisPool pool = new JedisPool(new JedisPoolConfig(), "localhost");
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class RedisPoolConnection {
-	private JedisPool pool;
+    private JedisPool pool;
 
-	@Autowired
-	public RedisPoolConnection(@Qualifier("redisSetup") RedisInstanceSetup redisInstanceSetup) {
-		LOG.info("Redis Factory initialized with Hostname: {}, Port {}, Password: {}", redisInstanceSetup.getHostname(),
-				redisInstanceSetup.getPort(),
-				Strings.isNullOrEmpty(redisInstanceSetup.getPassword()) ? "<empty>" : "*******");
-		JedisPoolConfig config = new JedisPoolConfig();
-		pool = new JedisPool(config, redisInstanceSetup.getHostname(), redisInstanceSetup.getPort(), 0,
-				redisInstanceSetup.getPassword());
-	}
+    @Autowired
+    public RedisPoolConnection(@Qualifier("redisSetup") RedisInstanceSetup redisInstanceSetup) {
+        LOG.info("Redis Factory initialized with Hostname: {}, Port {}, Password: {}", redisInstanceSetup.getHostname(),
+                redisInstanceSetup.getPort(),
+                Strings.isNullOrEmpty(redisInstanceSetup.getPassword()) ? "<empty>" : "*******");
+        JedisPoolConfig config = new JedisPoolConfig();
+        pool = new JedisPool(config, redisInstanceSetup.getHostname(), redisInstanceSetup.getPort(), 0,
+                redisInstanceSetup.getPassword());
+    }
 
 
-	public Jedis getResource() {
-		return pool.getResource();
-	}
+    public Jedis getResource() {
+        return pool.getResource();
+    }
 }
 ----
 
@@ -339,34 +339,34 @@ Below is the snippet of code that shows how save or update a _POJO_ in Redis.
 @Component
 public class RedisOperations {
 
-	private static final Logger LOG = LogManager.getLogger(RedisOperations.class);
-	private RedisPoolConnection redisFactory;
+    private static final Logger LOG = LogManager.getLogger(RedisOperations.class);
+    private RedisPoolConnection redisFactory;
 
-	@Autowired
-	public RedisOperations(RedisPoolConnection redisFactory) {
-		super();
-		this.redisFactory = redisFactory;
-	}
+    @Autowired
+    public RedisOperations(RedisPoolConnection redisFactory) {
+        super();
+        this.redisFactory = redisFactory;
+    }
 
-	public <T extends Serializable> String saveOrUpdateObject(String key, T object) throws IOException {
+    public <T extends Serializable> String saveOrUpdateObject(String key, T object) throws IOException {
 
-		try {
-			byte[] bytes = serializeObject(object);          // <1>
-			String result = null;
+        try {
+            byte[] bytes = serializeObject(object);          // <1>
+            String result = null;
 
-			try (Jedis jedis = redisFactory.getResource()) { // <2>
-				result = jedis.set(key.getBytes(), bytes);   // <3>
-			}
-			return result;
-		} catch (IOException ex) {
-			LOG.error("I/O Error when trying to save object", ex);
-			throw ex;
-		} catch (Exception ex) {
-			LOG.error("Unknown Error when trying to save object", ex);
-			throw ex;
-		}
+            try (Jedis jedis = redisFactory.getResource()) { // <2>
+                result = jedis.set(key.getBytes(), bytes);   // <3>
+            }
+            return result;
+        } catch (IOException ex) {
+            LOG.error("I/O Error when trying to save object", ex);
+            throw ex;
+        } catch (Exception ex) {
+            LOG.error("Unknown Error when trying to save object", ex);
+            throw ex;
+        }
 
-	}
+    }
 
 }
 ----
