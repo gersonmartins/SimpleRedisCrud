@@ -1,6 +1,9 @@
 = Simple Redis Crud With Spring Boot
 Gerson B Martins <me@gbmartins.com>
 v1.0, 2016-05-12
+:source-highlighter: pygments
+:pygments-style: monokai
+:pygments-linenums-mode: inline
 :toc:
 
 In this post we’ll see how to make a simple CRUD (Create, Read, Update, and Delete) using Redis as database.
@@ -329,7 +332,7 @@ public class RedisPoolConnection {
 Similar to a basic service in a JEE application, in this example there is a class with all operations (Save, Update, etc) related to Redis.
 Each operation uses a connection from the Redis Pool Connection, executes the operation and release the pool resource. This last part is very important once the pool is limited and when the resource is released a new connection (socket) isn’t generated.
 
-Below is the snippet of code that shows how save or update a POJO in Redis.
+Below is the snippet of code that shows how save or update a _POJO_ in Redis.
 
 [source,java,linenums]
 ----
