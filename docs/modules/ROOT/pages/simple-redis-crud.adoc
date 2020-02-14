@@ -331,7 +331,7 @@ Each operation uses a connection from the Redis Pool Connection, executes the op
 
 Below is the snippet of code that shows how save or update a POJO in Redis.
 
-[source,java]
+[source,java,linenums]
 ----
 @Component
 public class RedisOperations {
