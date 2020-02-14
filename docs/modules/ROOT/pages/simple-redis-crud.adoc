@@ -1,9 +1,9 @@
 = Simple Redis Crud With Spring Boot
 Gerson B Martins <me@gbmartins.com>
 v1.0, 2016-05-12
-:source-highlighter: pygments
-:pygments-style: monokai
-:pygments-linenums-mode: table
+:source-highlighter: highlightjs
+:highlightjs-theme: idea
+:icons: font
 :toc:
 
 In this post we’ll see how to make a simple CRUD (Create, Read, Update, and Delete) using Redis as database.
@@ -334,7 +334,7 @@ Each operation uses a connection from the Redis Pool Connection, executes the op
 
 Below is the snippet of code that shows how save or update a _POJO_ in Redis.
 
-[source,java,linenums,highlight='16,19..20']
+[source,java]
 ----
 @Component
 public class RedisOperations {
@@ -351,11 +351,11 @@ public class RedisOperations {
 	public <T extends Serializable> String saveOrUpdateObject(String key, T object) throws IOException {
 
 		try {
-			byte[] bytes = serializeObject(object); // 1
+			byte[] bytes = serializeObject(object);          // <1>
 			String result = null;
 
-			try (Jedis jedis = redisFactory.getResource()) { // 2
-				result = jedis.set(key.getBytes(), bytes); // 3
+			try (Jedis jedis = redisFactory.getResource()) { // <2>
+				result = jedis.set(key.getBytes(), bytes);   // <3>
 			}
 			return result;
 		} catch (IOException ex) {
@@ -370,9 +370,8 @@ public class RedisOperations {
 
 }
 ----
-
-. **Line 17**: Serializes the object
-. **Line 20**: Requests a connection resource and releases it after the end of the block try
-. **Line 21**: Stores the byte array with parameter key (String)
+<1> Serializes the object
+<2> Requests a connection resource and releases it after the end of the block try
+<3> Stores the byte array with parameter key (String)
 
 That’s it! Please visit the entire project with Unit Tests on https://github.com/gersonmartins/SimpleRedisCrud[Github].
