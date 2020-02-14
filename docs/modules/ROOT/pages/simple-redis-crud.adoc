@@ -1,0 +1,375 @@
+= Simple Redis Crud With Spring Boot
+Gerson B Martins <me@gbmartins.com>
+v1.0, 2016-05-12
+:toc:
+
+In this post we’ll see how to make a simple CRUD (Create, Read, Update, and Delete) using Redis as database.
+
+== About Redis
+
+____
+Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker. (http://redis.io)
+____
+
+== Solution
+
+This solution will save, update, delete, and list an User entity in a Redis.
+
+=== Preparing environment and tools
+
+* Java 8
+* Redis 3.2.1 or higher.
+* Spring Boot
+* Eclipse Mars (or higher), or STS 3.7.x
+
+==== Redis configuration
+
+Redis in this solution was installed into a Linux computer. So, the following steps are related to this. If you prefer a Windows installation please refer to https://github.com/MSOpenTech/redis[MSOpenTech github page].
+
+Redis is written in **ANSI C** and all dependencies are compiled together with the main application.
+
+==== Redis installation into linux machine
+
+* Make sure that your Linux distro has  the minimum requirements to compile C/C++ programs. Basically you need to install build-essential (Ubuntu) package.
+
+For Ubuntu linux (or another distro based on Debian packages), run these commands:
+
+[source,bash]
+----
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install build-essential
+gcc -v
+make -v
+----
+
+For RPM Linux based on, run the following commands
+
+[source,bash]
+----
+yum groupinstall "Development tools"
+gcc -v
+make -v
+----
+
+* Download Redis from http://download.redis.io/releases/redis-3.2.1.tar.gz[Redis 3.2.1] link (or visit http://redis.io/download[Redis Download] page and get the latest version);
+* Decompress the tar.gz file and compile Redis:
+
+[source,bash]
+----
+tar xzvf redis-3.2.1.tar.gz
+cd redis-3.2.1/
+make
+make test
+----
+
+* After compilation the server program will be available in `path_to_redis/src/redis-server`. If something went wrong with compilation, verify if some dependency is missing. Don’t forget to run make clean before run make again.
+
+==== Running Redis
+
+We are going to use the default Redis configuration in order to start the server. You can modify this creating a config file. For further details about Redis configuration, access the http://redis.io/topics/config[official documentation].
+
+* Go to `path_to_redis/src` and run Redis server:
+
+[source,bash]
+----
+./redis-server
+----
+
+You will see a screen that looks like this:
+
+[source,text]
+----
+8036:C 15 Jul 03:40:36.098 # Warning: no config file specified, using the default config. In order to specify a config file use ./redis-server /path/to/redis.conf
+8036:M 15 Jul 03:40:36.099 # You requested maxclients of 10000 requiring at least 10032 max file descriptors.
+8036:M 15 Jul 03:40:36.099 # Server can't set maximum open files to 10032 because of OS error: Operation not permitted.
+8036:M 15 Jul 03:40:36.099 # Current maximum open files is 4096. maxclients has been reduced to 4064 to compensate for low ulimit. If you need higher maxclients increase 'ulimit -n'.
+                _._
+           _.-``__ ''-._
+      _.-``    `.  `_.  ''-._           Redis 3.2.1 (00000000/0) 64 bit
+  .-`` .-```.  ```\/    _.,_ ''-._
+ (    '      ,       .-`  | `,    )     Running in standalone mode
+ |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6379
+ |    `-._   `._    /     _.-'    |     PID: 8036
+  `-._    `-._  `-./  _.-'    _.-'
+ |`-._`-._    `-.__.-'    _.-'_.-'|
+ |    `-._`-._        _.-'_.-'    |           http://redis.io
+  `-._    `-._`-.__.-'_.-'    _.-'
+ |`-._`-._    `-.__.-'    _.-'_.-'|
+ |    `-._`-._        _.-'_.-'    |
+  `-._    `-._`-.__.-'_.-'    _.-'
+      `-._    `-.__.-'    _.-'
+          `-._        _.-'
+              `-.__.-'
+
+8036:M 15 Jul 03:40:36.099 # Server started, Redis version 3.2.1
+8036:M 15 Jul 03:40:36.100 * The server is now ready to accept connections on port 6379
+----
+
+Well done! We have the first part of our solution ready!
+
+== Simple Redis CRUD
+
+All source code can be found in https://github.com/gersonmartins/SimpleRedisCrud.
+
+In the following paragraphs we will talk about key points to clarify the application.
+
+=== Spring Boot
+
+For this example, I choose to implement a Spring Boot application without WEB support. All commands are performed by key input on the console.
+
+==== Spring Boot - Maven Configuration
+
+===== Spring Parent POM
+
+In order to make easier our job, we will create the POM file as child from spring-boot-starter-parent. When we create a Spring Boot application based on Maven with spring-boot-starter-parent, all Spring dependencies are available, including some data connection libraries like _Jedis_, a client library for Redis.
+
+[source,xml]
+----
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.gbmartins.redis</groupId>
+	<artifactId>simple-crud</artifactId>
+	<version>0.1</version>
+	<name>Redis Simple Crud</name>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.0.RELEASE</version>
+	</parent>
+----
+
+Lines within `<parent>` node show how the POM file is created as a child of the Spring Boot. Doing this, just a few others configurations are needed because the main complexity will be managed by the parent POM.
+
+===== Spring Boot Start Class
+
+As a part of Spring boot plugin, we need to set which class is our Main class. An entry in POM properties section is required:
+
+[source,xml]
+----
+<properties>
+	<guava.version>19.0</guava.version>
+	<java.version>1.8</java.version>
+	<spring.boot.version>1.4.0.RELEASE</spring.boot.version>
+
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+	<start-class>com.gbmartins.redis.crud.SimpleCrud</start-class>
+
+</properties>
+----
+
+When the Spring Boot is compiled, the `spring-boot-maven-plugin` will use this `start-class` property to set the SimpleCrud class as the main class of the application.
+
+The following POM fragment shows how to configure the `spring-boot-maven-plugin`.
+
+[source,xml]
+----
+<build>
+	<plugins>
+		<plugin>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-maven-plugin</artifactId>
+			<configuration>
+				<mainClass>${start-class}</mainClass>
+				<layout>ZIP</layout>
+			</configuration>
+			<executions>
+				<execution>
+					<goals>
+						<goal>repackage</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+	<!-- omitted lines -->
+	</plugins>
+</build>
+----
+
+Below is the `SimpleCrud` class. Inside the method main, the `SpringApplication` is configured according to applications needs.
+
+[source,java]
+----
+package com.gbmartins.redis.crud;
+
+import org.springframework.boot.Banner;
+import org.springframework.boot.SpringApplication;
+
+import com.gbmartins.redis.crud.config.ApplicationConfiguration;
+import com.gbmartins.redis.crud.config.RedisApplicationConfiguration;
+import com.google.common.collect.Sets;
+
+public class SimpleCrud {
+	public static void main(String[] args) {
+
+		SpringApplication app = new SpringApplication(Application.class);
+		app.setBannerMode(Banner.Mode.CONSOLE);
+		app.setSources(Sets.newHashSet(ApplicationConfiguration.class, RedisApplicationConfiguration.class));
+		app.setWebEnvironment(false);
+		app.run(args);
+
+	}
+}
+----
+
+In above code, we set the sources that will be part of Spring Boot Application. I prefer call all configuration within these classes. For example, ApplicationConfiguration class is in charge of prepare all configuration in YAML config file. When we split the configuration in several classes we have some additional work to maintain them but this practice is very useful when we need change the configuration to unit tests.
+
+==== Setup Redis on Spring
+
+All configurations related to Redis connection are on the file _application.yml_.
+Spring Boot offers good tools to read the content of this file and keeping all information available easily.
+
+[source,yaml]
+----
+redis:
+  hostname: 192.168.0.102
+  port: 6378
+  password: redis456
+----
+
+In order to read those parameters we created two classes, one for mapping the values from _application.yml_, called RedisSetup and one for create a bean with a Redis Instance.
+
+[source,java]
+----
+@EnableAutoConfiguration
+@Configuration
+@EnableConfigurationProperties(value = { RedisSetup.class })
+public class ApplicationConfiguration {
+
+	@Autowired
+	private RedisSetup redisSetup;
+
+	@Bean
+	public PropertySource<?> yamlPropertySourceLoader() throws IOException {
+		YamlPropertySourceLoader loader = new YamlPropertySourceLoader();
+		PropertySource<?> applicationYamlPropertySource = loader.load("application.yml",
+				new ClassPathResource("application.yml"), "default");
+		return applicationYamlPropertySource;
+	}
+
+
+	@Bean(name = "redisSetup")
+	public RedisInstanceSetup redisInstanceSetup() {
+		RedisInstanceSetup.createInstance(redisSetup.getHostname(), redisSetup.getPort(), redisSetup.getPassword());
+		return RedisInstanceSetup.getInstance();
+	}
+
+}
+----
+
+In line `RedisInstanceSetup` method is created an instance of a Redis Setup. This is a simple singleton that keep the configuration in one only place. We can replace this to a Spring managed bean or use the existent RedisSetup bean to access the configuration. I prefer define my own “singletons” to store configuration because I had some bad experiences with a migration to Java pure system from a framework like Spring.
+
+[source,java]
+----
+@Component
+@ConfigurationProperties("redis")
+public class RedisSetup {
+
+	private static final Logger LOG = LogManager.getLogger(RedisSetup.class);
+	private String hostname;
+	private Integer port;
+	private String password;
+
+        /* Getters and Setters were omitted */
+}
+----
+
+More details about YAML on Spring Boot, refer to http://pawel-malczyk.pl/wordpress/?p=470[Using YAML Spring-Boot application configuration].
+
+=== CRUD
+
+==== Jedis
+
+There are many Redis clients available for a lot of languages. You can see full list in https://redis.io/clients.
+In our example, we are going to use https://github.com/xetorthio/jedis[Jedis].
+Jedis is a popular Java Redis client and Spring Data use it for connection with Redis. In our case, we are going to explore it in raw mode, in other words, we are going to use it without Spring Data helpers and interfaces.
+
+==== Pool Connection
+
+A good practice is connect to a Redis using Pool Connection, because this will work fine in both: monothreaded and multithreaded environments.
+
+____
+You shouldn’t use the same instance from different threads because you’ll have strange errors. And sometimes creating lots of Jedis instances is not good enough because it means lots of sockets and connections, which leads to strange errors as well. A single Jedis instance is not threadsafe! To avoid these problems, you should use JedisPool, which is a threadsafe pool of network connections. You can use the pool to reliably create several Jedis instances, given you return the Jedis instance to the pool when done. This way you can overcome those strange errors and achieve great performance. (https://github.com/xetorthio/jedis/wiki/Getting-started[Jedis – Getting Started])
+____
+
+Class RedisPoolConnection creates an instance of JedisPool:
+
+[source,java]
+----
+JedisPool pool = new JedisPool(new JedisPoolConfig(), "localhost");
+----
+
+[source,java]
+----
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class RedisPoolConnection {
+	private JedisPool pool;
+
+	@Autowired
+	public RedisPoolConnection(@Qualifier("redisSetup") RedisInstanceSetup redisInstanceSetup) {
+		LOG.info("Redis Factory initialized with Hostname: {}, Port {}, Password: {}", redisInstanceSetup.getHostname(),
+				redisInstanceSetup.getPort(),
+				Strings.isNullOrEmpty(redisInstanceSetup.getPassword()) ? "<empty>" : "*******");
+		JedisPoolConfig config = new JedisPoolConfig();
+		pool = new JedisPool(config, redisInstanceSetup.getHostname(), redisInstanceSetup.getPort(), 0,
+				redisInstanceSetup.getPassword());
+	}
+
+
+	public Jedis getResource() {
+		return pool.getResource();
+	}
+}
+----
+
+Similar to a basic service in a JEE application, in this example there is a class with all operations (Save, Update, etc) related to Redis.
+Each operation uses a connection from the Redis Pool Connection, executes the operation and release the pool resource. This last part is very important once the pool is limited and when the resource is released a new connection (socket) isn’t generated.
+
+Below is the snippet of code that shows how save or update a POJO in Redis.
+
+[source,java]
+----
+@Component
+public class RedisOperations {
+
+	private static final Logger LOG = LogManager.getLogger(RedisOperations.class);
+	private RedisPoolConnection redisFactory;
+
+	@Autowired
+	public RedisOperations(RedisPoolConnection redisFactory) {
+		super();
+		this.redisFactory = redisFactory;
+	}
+
+	public <T extends Serializable> String saveOrUpdateObject(String key, T object) throws IOException {
+
+		try {
+			byte[] bytes = serializeObject(object); // 1
+			String result = null;
+
+			try (Jedis jedis = redisFactory.getResource()) { // 2
+				result = jedis.set(key.getBytes(), bytes); // 3
+			}
+			return result;
+		} catch (IOException ex) {
+			LOG.error("I/O Error when trying to save object", ex);
+			throw ex;
+		} catch (Exception ex) {
+			LOG.error("Unknown Error when trying to save object", ex);
+			throw ex;
+		}
+
+	}
+
+}
+----
+
+. Serializes the object
+. Requests a connection resource and releases it after the end of the block try
+. Stores the byte array with parameter key (String)
+
+That’s it! Please visit the entire project with Unit Tests on https://github.com/gersonmartins/SimpleRedisCrud[Github].

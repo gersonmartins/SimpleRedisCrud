@@ -1,0 +1,7 @@
+name: main-component
+title: Main Page
+version: 0.0.1
+start_page: ROOT:simple-redis-crud.adoc
+nav:
+  - modules/ROOT/nav.adoc
+#  - modules/java-module/nav.adoc
