@@ -3,7 +3,7 @@ Gerson B Martins <me@gbmartins.com>
 v1.0, 2016-05-12
 :source-highlighter: pygments
 :pygments-style: monokai
-:pygments-linenums-mode: inline
+:pygments-linenums-mode: table
 :toc:
 
 In this post we’ll see how to make a simple CRUD (Create, Read, Update, and Delete) using Redis as database.
@@ -334,7 +334,7 @@ Each operation uses a connection from the Redis Pool Connection, executes the op
 
 Below is the snippet of code that shows how save or update a _POJO_ in Redis.
 
-[source,java,linenums]
+[source,java,linenums,highlight='16,19..20']
 ----
 @Component
 public class RedisOperations {
@@ -371,8 +371,8 @@ public class RedisOperations {
 }
 ----
 
-. Serializes the object
-. Requests a connection resource and releases it after the end of the block try
-. Stores the byte array with parameter key (String)
+. **Line 17**: Serializes the object
+. **Line 20**: Requests a connection resource and releases it after the end of the block try
+. **Line 21**: Stores the byte array with parameter key (String)
 
 That’s it! Please visit the entire project with Unit Tests on https://github.com/gersonmartins/SimpleRedisCrud[Github].
